@@ -15,6 +15,7 @@ import (
 
 	"github.com/stashapp/stash/pkg/database"
 	"github.com/stashapp/stash/pkg/dlna"
+	"github.com/stashapp/stash/pkg/event"
 	"github.com/stashapp/stash/pkg/ffmpeg"
 	"github.com/stashapp/stash/pkg/job"
 	"github.com/stashapp/stash/pkg/logger"
@@ -23,6 +24,7 @@ import (
 	"github.com/stashapp/stash/pkg/models"
 	"github.com/stashapp/stash/pkg/plugin"
 	"github.com/stashapp/stash/pkg/scraper"
+	"github.com/stashapp/stash/pkg/search"
 	"github.com/stashapp/stash/pkg/session"
 	"github.com/stashapp/stash/pkg/sqlite"
 	"github.com/stashapp/stash/pkg/utils"
@@ -36,7 +38,9 @@ type singleton struct {
 	FFMPEG  ffmpeg.Encoder
 	FFProbe ffmpeg.FFProbe
 
-	SessionStore *session.Store
+	eventDispatcher *event.Dispatcher
+	Search          *search.Engine
+	SessionStore    *session.Store
 
 	JobManager *job.Manager
 
@@ -72,13 +76,22 @@ func Initialize() *singleton {
 		initLog()
 		initProfiling(cfg.GetCPUProfilePath())
 
-		instance = &singleton{
-			Config:        cfg,
-			JobManager:    job.NewManager(),
-			DownloadStore: NewDownloadStore(),
-			PluginCache:   plugin.NewCache(cfg),
+		dispatcher := event.NewDispatcher()
+		dispatcher.Start(ctx)
 
-			TxnManager: sqlite.NewTransactionManager(),
+		txnManager := sqlite.NewTransactionManager()
+		search := search.NewEngine(txnManager, cfg)
+		search.Start(ctx, dispatcher)
+
+		instance = &singleton{
+			Config:          cfg,
+			JobManager:      job.NewManager(),
+			DownloadStore:   NewDownloadStore(),
+			eventDispatcher: dispatcher,
+			Search:          search,
+			PluginCache:     plugin.NewCache(cfg, dispatcher),
+
+			TxnManager: txnManager,
 
 			scanSubs: &subscriptionManager{},
 		}

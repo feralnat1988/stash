@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"github.com/stashapp/stash/pkg/event"
 	"github.com/stashapp/stash/pkg/plugin/common"
 )
 
@@ -80,7 +81,6 @@ var AllHookTriggerEnum = []HookTriggerEnum{
 }
 
 func (e HookTriggerEnum) IsValid() bool {
-
 	switch e {
 	case SceneMarkerCreatePost,
 		SceneMarkerUpdatePost,
@@ -112,7 +112,8 @@ func (e HookTriggerEnum) IsValid() bool {
 
 		TagCreatePost,
 		TagUpdatePost,
-		TagDestroyPost:
+		TagDestroyPost,
+		TagMergePost:
 		return true
 	}
 	return false
@@ -124,4 +125,27 @@ func (e HookTriggerEnum) String() string {
 
 func addHookContext(argsMap common.ArgsMap, hookContext common.HookContext) {
 	argsMap[common.HookContextKey] = hookContext
+}
+
+func changeFromHookTrigger(e HookTriggerEnum) event.ChangeType {
+	switch e {
+	case SceneMarkerCreatePost, SceneMarkerUpdatePost, SceneMarkerDestroyPost:
+		return event.SceneMarker
+	case SceneCreatePost, SceneUpdatePost, SceneDestroyPost:
+		return event.Scene
+	case ImageCreatePost, ImageUpdatePost, ImageDestroyPost:
+		return event.Image
+	case GalleryCreatePost, GalleryUpdatePost, GalleryDestroyPost:
+		return event.Gallery
+	case MovieCreatePost, MovieUpdatePost, MovieDestroyPost:
+		return event.Movie
+	case PerformerCreatePost, PerformerUpdatePost, PerformerDestroyPost:
+		return event.Performer
+	case StudioCreatePost, StudioUpdatePost, StudioDestroyPost:
+		return event.Studio
+	case TagCreatePost, TagUpdatePost, TagDestroyPost, TagMergePost:
+		return event.Tag
+	}
+
+	panic("missing case in changeFromHookTrigger")
 }

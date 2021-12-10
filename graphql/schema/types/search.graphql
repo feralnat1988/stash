@@ -1,0 +1,31 @@
+enum SearchType {
+    SEARCH_SCENE
+    SEARCH_PERFORMER
+    SEARCH_TAG
+    SEARCH_STUDIO
+}
+
+type SearchResultItemConnection {
+    edges: [SearchItemEdge]
+
+    took: Float!
+    maxScore: Float!
+    total: Int!
+
+    status: SearchResultStatus
+}
+
+type SearchResultStatus {
+    successful: Int!
+    failed: Int!
+    total: Int!
+}
+
+type SearchItemEdge {
+    node: SearchResultItem
+    score: Float!
+}
+
+interface SearchResultItem {
+    id: ID!
+}

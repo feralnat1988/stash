@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"github.com/stashapp/stash/pkg/event"
 	"github.com/stashapp/stash/pkg/logger"
 	"github.com/stashapp/stash/pkg/manager/config"
 	"github.com/stashapp/stash/pkg/models"
@@ -25,10 +26,11 @@ import (
 
 // Cache stores plugin details.
 type Cache struct {
-	config       *config.Instance
-	plugins      []Config
-	sessionStore *session.Store
-	gqlHandler   http.Handler
+	config          *config.Instance
+	plugins         []Config
+	sessionStore    *session.Store
+	gqlHandler      http.Handler
+	eventDispatcher *event.Dispatcher
 }
 
 // NewCache returns a new Cache.
@@ -38,9 +40,10 @@ type Cache struct {
 //
 // Does not load plugins. Plugins will need to be
 // loaded explicitly using ReloadPlugins.
-func NewCache(config *config.Instance) *Cache {
+func NewCache(config *config.Instance, ed *event.Dispatcher) *Cache {
 	return &Cache{
-		config: config,
+		config:          config,
+		eventDispatcher: ed,
 	}
 }
 
@@ -177,6 +180,35 @@ func (c Cache) ExecutePostHooks(ctx context.Context, id int, hookType HookTrigge
 		InputFields: inputFields,
 	}); err != nil {
 		logger.Errorf("error executing post hooks: %s", err.Error())
+	}
+
+	switch hookType {
+	case TagMergePost:
+		mergeInput, ok := input.(models.TagsMergeInput)
+		if !ok {
+			logger.Warnf("not posthooking merge event because input type doesn't match")
+			return
+		}
+
+		ty := changeFromHookTrigger(hookType)
+		for _, v := range mergeInput.Source {
+			id, err := strconv.Atoi(v)
+			if err != nil {
+				logger.Warnf("could not convert TagsMergeInput source %v to integer: %v", v, err)
+				continue
+			}
+			c.eventDispatcher.Publish(event.Change{ID: id, Type: ty})
+		}
+
+		target, err := strconv.Atoi(mergeInput.Destination)
+		if err != nil {
+			logger.Warnf("couldn't convert TagsMergeInput destination %v to integer: %v", mergeInput.Destination, err)
+			return
+		}
+
+		c.eventDispatcher.Publish(event.Change{ID: target, Type: ty})
+	default:
+		c.eventDispatcher.Publish(event.Change{ID: id, Type: changeFromHookTrigger(hookType)})
 	}
 }
 

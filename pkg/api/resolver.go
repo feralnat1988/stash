@@ -11,6 +11,7 @@ import (
 	"github.com/stashapp/stash/pkg/models"
 	"github.com/stashapp/stash/pkg/plugin"
 	"github.com/stashapp/stash/pkg/scraper"
+	"github.com/stashapp/stash/pkg/search"
 )
 
 var (
@@ -32,6 +33,7 @@ type hookExecutor interface {
 type Resolver struct {
 	txnManager   models.TransactionManager
 	hookExecutor hookExecutor
+	searchEngine *search.Engine
 }
 
 func (r *Resolver) scraperCache() *scraper.Cache {

@@ -64,6 +64,9 @@ type Query {
 
   logs: [LogEntry!]!
 
+  # Search
+  search(query: String!, type: SearchType): SearchResultItemConnection!
+
   # Scrapers
 
   """List available scrapers"""
