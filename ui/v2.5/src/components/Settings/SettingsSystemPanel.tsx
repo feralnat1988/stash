@@ -402,6 +402,7 @@ export const SettingsConfigurationPanel: React.FC = () => {
         <SelectSetting
           id="log-level"
           headingID="config.logs.log_level"
+          subHeadingID="config.general.log_level_desc"
           onChange={(v) => saveGeneral({ logLevel: v })}
           value={general.logLevel ?? undefined}
         >
