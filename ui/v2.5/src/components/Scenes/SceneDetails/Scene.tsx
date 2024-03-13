@@ -8,7 +8,7 @@ import React, {
   useLayoutEffect,
 } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
-import { Link, RouteComponentProps } from "react-router-dom";
+import { RouteComponentProps } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import * as GQL from "src/core/generated-graphql";
 import {
@@ -522,17 +522,6 @@ const ScenePage: React.FC<IProps> = ({
         }`}
       >
         <div className="d-none d-xl-block">
-          {scene.studio && (
-            <h1 className="mt-3 text-center">
-              <Link to={`/studios/${scene.studio.id}`}>
-                <img
-                  src={scene.studio.image_path ?? ""}
-                  alt={`${scene.studio.name} logo`}
-                  className="studio-logo"
-                />
-              </Link>
-            </h1>
-          )}
           <h3 className="scene-header">{title}</h3>
         </div>
         {renderTabs()}
