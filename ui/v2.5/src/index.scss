@@ -631,6 +631,7 @@ div.dropdown-menu {
   overflow-y: auto;
 
   .dropdown-item {
+    align-items: center;
     display: flex;
   }
 }

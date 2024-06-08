@@ -67,6 +67,15 @@ const displayModeOptions = [
 ];
 
 const criterionOptions = [
+  RatingCriterionOption,
+  StudiosCriterionOption,
+  PerformersCriterionOption,
+  TagsCriterionOption,
+  MoviesCriterionOption,
+  OrganizedCriterionOption,
+];
+
+const defaultHiddenCriterionOptions = [
   createStringCriterionOption("title"),
   createStringCriterionOption("code", "scene_code"),
   PathCriterionOption,
@@ -76,8 +85,6 @@ const criterionOptions = [
   createStringCriterionOption("checksum", "media_info.checksum"),
   PhashCriterionOption,
   DuplicatedCriterionOption,
-  OrganizedCriterionOption,
-  RatingCriterionOption,
   createMandatoryNumberCriterionOption("o_counter", "o_count"),
   ResolutionCriterionOption,
   OrientationCriterionOption,
@@ -92,15 +99,11 @@ const criterionOptions = [
   createMandatoryTimestampCriterionOption("last_played_at"),
   HasMarkersCriterionOption,
   SceneIsMissingCriterionOption,
-  TagsCriterionOption,
   createMandatoryNumberCriterionOption("tag_count"),
   PerformerTagsCriterionOption,
-  PerformersCriterionOption,
   createMandatoryNumberCriterionOption("performer_count"),
   createMandatoryNumberCriterionOption("performer_age"),
   PerformerFavoriteCriterionOption,
-  StudiosCriterionOption,
-  MoviesCriterionOption,
   GalleriesCriterionOption,
   createStringCriterionOption("url"),
   StashIDCriterionOption,
@@ -117,5 +120,6 @@ export const SceneListFilterOptions = new ListFilterOptions(
   defaultSortBy,
   sortByOptions,
   displayModeOptions,
-  criterionOptions
+  criterionOptions.concat(defaultHiddenCriterionOptions),
+  defaultHiddenCriterionOptions
 );
