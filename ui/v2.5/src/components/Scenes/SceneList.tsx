@@ -44,7 +44,7 @@ const SceneItemList = makeItemList({
       return;
     }
 
-    const separator = duration && size ? " - " : "";
+    const separator = duration && size ? "—" : "";
 
     return (
       <span className="scenes-stats">
